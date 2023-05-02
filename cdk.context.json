@@ -1,0 +1,20 @@
+{
+  "globals": {
+    "appName": "trip-logger",
+    "region": "us-east-1",
+    "profile": "todo",
+    "appDescription": "A stack for a Travel pic viewer"
+  },
+  "environments": [
+    {
+      "environment": "develop",
+      "branchName": "develop",
+      "s3AllowedOrigins": ["*"]
+    },
+    {
+      "environment": "production",
+      "branchName": "main",
+      "s3AllowedOrigins": ["*"]
+    }
+  ]
+}
