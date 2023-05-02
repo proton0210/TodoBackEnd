@@ -1,17 +1,36 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { CDKContext } from "../cdk.context";
+import { createUserTable } from "../constructs/table";
+import { createAddUserPostConfirmation } from "../functions/AddUserPostConfirmation/construct";
+import { createTodoUserPool } from "../constructs/auth";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class TodoStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    context: CDKContext,
+    props?: cdk.StackProps
+  ) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const userDB = createUserTable(this, {
+      appName: context.appName,
+      env: context.environment,
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'TodoQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const addUserFunc = createAddUserPostConfirmation(this, {
+      appName: context.appName,
+      env: context.environment,
+      userTable: userDB,
+    });
+
+    const cognitoAuth = createTodoUserPool(this, {
+      appName: context.appName,
+      env: context.environment,
+      addUserPostConfirmation: addUserFunc,
+    });
   }
 
   // create AWS Cognito

@@ -1,9 +1,9 @@
 {
   "globals": {
-    "appName": "trip-logger",
+    "appName": "todo",
     "region": "us-east-1",
-    "profile": "todo",
-    "appDescription": "A stack for a Travel pic viewer"
+    "account": "915467490133",
+    "appDescription": "A app to log your Todos"
   },
   "environments": [
     {
