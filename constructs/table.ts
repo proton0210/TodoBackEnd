@@ -26,3 +26,21 @@ export function createUserTable(
 
   return userTable;
 }
+
+type TodoTableProps = BaseTableProps & {};
+
+export function CreateTodoTable(
+  scope: Construct,
+  props: TodoTableProps
+): awsDynamodb.Table {
+  const todoTable = new awsDynamodb.Table(scope, "TodoTable", {
+    tableName: `${props.appName}-${props.env}-TodoTable`,
+    removalPolicy:
+      props.env === "develop" ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
+    billingMode: awsDynamodb.BillingMode.PAY_PER_REQUEST,
+    partitionKey: { name: "userId", type: awsDynamodb.AttributeType.STRING },
+    sortKey: { name: "todoId", type: awsDynamodb.AttributeType.STRING },
+  });
+
+  return todoTable;
+}

@@ -1,7 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import { CDKContext } from "../cdk.context";
-import { createUserTable } from "../constructs/table";
+import { CreateTodoTable, createUserTable } from "../constructs/table";
 import { createAddUserPostConfirmation } from "../functions/AddUserPostConfirmation/construct";
 import { createTodoUserPool } from "../constructs/auth";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
@@ -20,6 +20,11 @@ export class TodoStack extends cdk.Stack {
       env: context.environment,
     });
 
+    const todoDB = CreateTodoTable(this, {
+      appName: context.appName,
+      env: context.environment,
+    });
+
     const addUserFunc = createAddUserPostConfirmation(this, {
       appName: context.appName,
       env: context.environment,
@@ -31,7 +36,19 @@ export class TodoStack extends cdk.Stack {
       env: context.environment,
       addUserPostConfirmation: addUserFunc,
     });
-  }
 
-  // create AWS Cognito
+    new cdk.CfnOutput(this, "User pool", {
+      value: cognitoAuth.userPool.userPoolId,
+      description: "User pool",
+    });
+    new cdk.CfnOutput(this, "User pool Client", {
+      value: cognitoAuth.userPoolClient.userPoolClientId,
+      description: "client Id",
+    });
+
+    new cdk.CfnOutput(this, "Identity Pool", {
+      value: cognitoAuth.identityPool.identityPoolId,
+      description: "Identity Pool id",
+    });
+  }
 }

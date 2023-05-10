@@ -23,20 +23,25 @@ export function createTodoUserPool(scope: Construct, props: TodoUserPool) {
   // the L2 Construct for a userpool
   const userPool = new awsCognito.UserPool(
     scope,
-    `${props.appName}-${props.env}-userpool`,
+    `${props.appName}-${props.env}-userpoolv2`,
     {
       userPoolName: `${props.appName}-${props.env}-userpool`,
       selfSignUpEnabled: true,
       accountRecovery: awsCognito.AccountRecovery.EMAIL_ONLY,
-      userVerification: {
-        emailStyle: awsCognito.VerificationEmailStyle.CODE,
+      autoVerify: {
+        email: true,
       },
       standardAttributes: {
         email: {
           required: true,
           mutable: true,
         },
+        givenName: {
+          required: true,
+          mutable: false,
+        },
       },
+
       lambdaTriggers: {
         postConfirmation: props.addUserPostConfirmation,
       },

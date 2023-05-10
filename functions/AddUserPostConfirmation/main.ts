@@ -17,6 +17,7 @@ exports.handler = async (event: PostConfirmationConfirmSignUpTriggerEvent) => {
       updatedAt: isoDate,
       username: event.userName,
       email: event.request.userAttributes.email,
+      name: event.request.userAttributes.given_name,
     },
   };
 
