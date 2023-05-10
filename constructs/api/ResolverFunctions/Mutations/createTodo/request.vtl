@@ -1,0 +1,29 @@
+{
+    "version": "2018-05-29",
+    "operation": "PutItem",
+    "key": {
+        "userId": {
+            "S": "$ctx.args.input.userId"
+        },
+        "todoId": {
+            "S": "$util.autoId()"
+        }
+    },
+    "attributeValues": {
+        "title": {
+            "S": "$ctx.args.input.title"
+        },
+        "completed": {
+            "BOOL": false
+        },
+        "createdAt": {
+            "S": "$util.time.nowISO8601()"
+        },
+        "updatedAt": {
+            "S": "$util.time.nowISO8601()"
+        }
+    },
+    "condition": {
+        "expression": "attribute_not_exists(userId) AND attribute_not_exists(todoId)"
+    }
+}

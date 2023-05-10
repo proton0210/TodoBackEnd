@@ -4,6 +4,7 @@ import { CDKContext } from "../cdk.context";
 import { CreateTodoTable, createUserTable } from "../constructs/table";
 import { createAddUserPostConfirmation } from "../functions/AddUserPostConfirmation/construct";
 import { createTodoUserPool } from "../constructs/auth";
+import { createTodoAppAPI } from "../constructs/api/appsync";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class TodoStack extends cdk.Stack {
@@ -35,6 +36,14 @@ export class TodoStack extends cdk.Stack {
       appName: context.appName,
       env: context.environment,
       addUserPostConfirmation: addUserFunc,
+    });
+
+    const api = createTodoAppAPI(this, {
+      appName: context.appName,
+      env: context.environment,
+      userpool: cognitoAuth.userPool,
+      TodoDB: todoDB,
+      userDB: userDB,
     });
 
     new cdk.CfnOutput(this, "User pool", {
