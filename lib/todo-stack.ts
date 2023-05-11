@@ -59,5 +59,11 @@ export class TodoStack extends cdk.Stack {
       value: cognitoAuth.identityPool.identityPoolId,
       description: "Identity Pool id",
     });
+
+    // output api url
+    new cdk.CfnOutput(this, "API URL", {
+      value: api.graphqlUrl,
+      description: "API URL",
+    });
   }
 }

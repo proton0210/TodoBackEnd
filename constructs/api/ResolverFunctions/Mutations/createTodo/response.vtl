@@ -1,8 +1,1 @@
-#set($result = $ctx.result)
-{
-    "todoId": "$result.putItem.todoId.S",
-    "title": "$result.putItem.title.S",
-    "completed": $result.putItem.completed.BOOL,
-    "createdAt": "$result.putItem.createdAt.S",
-    "updatedAt": "$result.putItem.updatedAt.S"
-}
+$util.toJson($context.result)
