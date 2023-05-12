@@ -63,5 +63,19 @@ export function createTodoAppAPI(scope: Construct, props: AppSyncApiProps) {
     }
   );
 
+  const createListTodosResolver = TodoDataSource.createResolver(
+    "Create List Todos Data Source Resolver",
+    {
+      typeName: "Query",
+      fieldName: "listTodos",
+      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+        path.join(__dirname, "./ResolverFunctions/Query/listTodos/request.vtl")
+      ),
+      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+        path.join(__dirname, "./ResolverFunctions/Query/listTodos/response.vtl")
+      ),
+    }
+  );
+
   return api;
 }
