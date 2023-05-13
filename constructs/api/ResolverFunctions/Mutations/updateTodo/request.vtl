@@ -1,0 +1,24 @@
+#set($userId = $ctx.identity.sub)
+#set($payload = {
+  "title": $ctx.args.input.title,
+  "completed": $ctx.args.input.completed
+})
+
+{
+  "version": "2018-05-29",
+  "operation": "UpdateItem",
+  "key": {
+    "userId": $util.dynamodb.toDynamoDBJson($userId),
+    "todoId": $util.dynamodb.toDynamoDBJson($ctx.args.input.todoId)
+  },
+  "update": {
+    "expression": "SET title = :title, completed = :completed",
+    "expressionValues": {
+      ":title": $util.dynamodb.toDynamoDBJson($payload.title),
+      ":completed": $util.dynamodb.toDynamoDBJson($payload.completed)
+    }
+  },
+  "condition": {
+    "expression": "attribute_exists(userId) AND attribute_exists(todoId)"
+  },
+}

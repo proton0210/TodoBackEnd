@@ -77,5 +77,25 @@ export function createTodoAppAPI(scope: Construct, props: AppSyncApiProps) {
     }
   );
 
+  const updateTodoResolver = TodoDataSource.createResolver(
+    "Update Todo Data Source Resolver",
+    {
+      typeName: "Mutation",
+      fieldName: "updateTodo",
+      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "./ResolverFunctions/Mutations/updateTodo/request.vtl"
+        )
+      ),
+      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "./ResolverFunctions/Mutations/updateTodo/response.vtl"
+        )
+      ),
+    }
+  );
+
   return api;
 }
