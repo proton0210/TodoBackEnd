@@ -97,5 +97,25 @@ export function createTodoAppAPI(scope: Construct, props: AppSyncApiProps) {
     }
   );
 
+  const deleteTodoResolver = TodoDataSource.createResolver(
+    "Delete Todo Data Source Resolver",
+    {
+      typeName: "Mutation",
+      fieldName: "deleteTodo",
+      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "./ResolverFunctions/Mutations/deleteTodo/request.vtl"
+        )
+      ),
+      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+        path.join(
+          __dirname,
+          "./ResolverFunctions/Mutations/deleteTodo/response.vtl"
+        )
+      ),
+    }
+  );
+
   return api;
 }

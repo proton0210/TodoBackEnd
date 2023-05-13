@@ -1,0 +1,10 @@
+#set($userId = $ctx.identity.sub)
+
+{
+  "version": "2018-05-29",
+  "operation": "DeleteItem",
+  "key": {
+    "userId": $util.dynamodb.toDynamoDBJson($userId),
+    "todoId": $util.dynamodb.toDynamoDBJson($ctx.args.todoId)
+  }
+}
