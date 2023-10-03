@@ -1,46 +1,28 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { CDKContext } from "../cdk.context";
 import { CreateTodoTable, createUserTable } from "../constructs/table";
-import { createAddUserPostConfirmation } from "../functions/AddUserPostConfirmation/construct";
+import { createAddUserPostConfirmation } from "../constructs/compute";
 import { createTodoUserPool } from "../constructs/auth";
 import { createTodoAppAPI } from "../constructs/api/appsync";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class TodoStack extends cdk.Stack {
-  constructor(
-    scope: Construct,
-    id: string,
-    context: CDKContext,
-    props?: cdk.StackProps
-  ) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const userDB = createUserTable(this, {
-      appName: context.appName,
-      env: context.environment,
-    });
+    const userDB = createUserTable(this);
 
-    const todoDB = CreateTodoTable(this, {
-      appName: context.appName,
-      env: context.environment,
-    });
+    const todoDB = CreateTodoTable(this);
 
     const addUserFunc = createAddUserPostConfirmation(this, {
-      appName: context.appName,
-      env: context.environment,
       userTable: userDB,
     });
 
     const cognitoAuth = createTodoUserPool(this, {
-      appName: context.appName,
-      env: context.environment,
       addUserPostConfirmation: addUserFunc,
     });
 
     const api = createTodoAppAPI(this, {
-      appName: context.appName,
-      env: context.environment,
       userpool: cognitoAuth.userPool,
       TodoDB: todoDB,
       userDB: userDB,

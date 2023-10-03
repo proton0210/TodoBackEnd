@@ -1,77 +1,65 @@
 import { Construct } from "constructs";
 import * as awsCognito from "aws-cdk-lib/aws-cognito";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
-import { envNameContext } from "../cdk.context";
 import {
   IdentityPool,
   UserPoolAuthenticationProvider,
 } from "@aws-cdk/aws-cognito-identitypool-alpha";
 
-/*
-When a user signs up for an application using Cognito, a unique ID is generated for them, 
-along with their email and username. While custom attributes can be added, they are generally expected to remain unchanged. 
-This is because that information is stored in the JSON Web Token (JWT) provided by Cognito. 
-To avoid users having to log out and log in to update their information, it's best to store user data in a User table.
-*/
-
 type TodoUserPool = {
-  appName: string;
-  env: envNameContext;
   addUserPostConfirmation: NodejsFunction;
 };
 export function createTodoUserPool(scope: Construct, props: TodoUserPool) {
-  // the L2 Construct for a userpool
-  const userPool = new awsCognito.UserPool(
-    scope,
-    `${props.appName}-${props.env}-userpoolv2`,
-    {
-      userPoolName: `${props.appName}-${props.env}-userpool`,
-      selfSignUpEnabled: true,
-      accountRecovery: awsCognito.AccountRecovery.EMAIL_ONLY,
-      autoVerify: {
-        email: true,
+  const userPool = new awsCognito.UserPool(scope, `UserPool`, {
+    userPoolName: `TodoUserPool`,
+    selfSignUpEnabled: true,
+    accountRecovery: awsCognito.AccountRecovery.EMAIL_ONLY,
+    autoVerify: {
+      email: true,
+    },
+    passwordPolicy: {
+      minLength: 8,
+      requireLowercase: false,
+      requireUppercase: false,
+      requireDigits: false,
+      requireSymbols: false,
+    },
+    standardAttributes: {
+      email: {
+        required: true,
+        mutable: true,
       },
-      standardAttributes: {
-        email: {
-          required: true,
-          mutable: true,
-        },
-        givenName: {
-          required: true,
-          mutable: false,
-        },
+      givenName: {
+        required: true,
+        mutable: false,
       },
+    },
 
-      lambdaTriggers: {
-        postConfirmation: props.addUserPostConfirmation,
-      },
-    }
-  );
+    lambdaTriggers: {
+      postConfirmation: props.addUserPostConfirmation,
+    },
+  });
 
   const userPoolClient = new awsCognito.UserPoolClient(
     scope,
-    `${props.appName}-${props.env}-userpoolClient`,
+    `userpoolClient`,
     {
       userPool,
     }
   );
 
-  const identityPool = new IdentityPool(
-    scope,
-    `${props.appName}-${props.env}-identityPool`,
-    {
-      identityPoolName: `${props.appName}-${props.env}IdentityPool`,
-      allowUnauthenticatedIdentities: true,
-      authenticationProviders: {
-        userPools: [
-          new UserPoolAuthenticationProvider({
-            userPool: userPool,
-            userPoolClient: userPoolClient,
-          }),
-        ],
-      },
-    }
-  );
+  const identityPool = new IdentityPool(scope, `identityPool`, {
+    identityPoolName: `TodoIdentityPool`,
+    allowUnauthenticatedIdentities: true,
+    authenticationProviders: {
+      userPools: [
+        new UserPoolAuthenticationProvider({
+          userPool: userPool,
+          userPoolClient: userPoolClient,
+        }),
+      ],
+    },
+  });
 
   return { userPool, userPoolClient, identityPool };
 }

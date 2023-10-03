@@ -6,9 +6,8 @@ import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
 import { IRole } from "aws-cdk-lib/aws-iam";
 import { PrimaryKey, AttributeValues } from "aws-cdk-lib/aws-appsync";
+import { createTodo, listTodos } from "../compute";
 interface AppSyncApiProps {
-  appName: string;
-  env: envNameContext;
   userpool: UserPool;
   TodoDB: Table;
   userDB: Table;
@@ -16,7 +15,7 @@ interface AppSyncApiProps {
 
 export function createTodoAppAPI(scope: Construct, props: AppSyncApiProps) {
   const api = new awsAppsync.GraphqlApi(scope, "TodoAPi", {
-    name: `${props.appName}-${props.env}-TodoAPI`,
+    name: `TodoAPI`,
     schema: awsAppsync.SchemaFile.fromAsset(
       path.join(__dirname, "./graphql/schema.graphql")
     ),
@@ -38,84 +37,69 @@ export function createTodoAppAPI(scope: Construct, props: AppSyncApiProps) {
     },
   });
 
-  const TodoDataSource = api.addDynamoDbDataSource(
-    `${props.appName}-${props.env}-TodoDataSouce`,
-    props.TodoDB
-  );
-
-  const createTodoResolver = TodoDataSource.createResolver(
-    "Create Todo Data Source Resolver",
-    {
-      typeName: "Mutation",
-      fieldName: "createTodo",
-      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(
-          __dirname,
-          "./ResolverFunctions/Mutations/createTodo/request.vtl"
-        )
-      ),
-      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(
-          __dirname,
-          "./ResolverFunctions/Mutations/createTodo/response.vtl"
-        )
-      ),
-    }
-  );
-
-  const createListTodosResolver = TodoDataSource.createResolver(
-    "Create List Todos Data Source Resolver",
-    {
+  const listTodoResolver = api
+    .addLambdaDataSource(
+      "List Todo Data Source",
+      listTodos(scope, {
+        todoTable: props.TodoDB,
+      })
+    )
+    .createResolver("ListTodosLambdaResolver", {
       typeName: "Query",
       fieldName: "listTodos",
-      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(__dirname, "./ResolverFunctions/Query/listTodos/request.vtl")
-      ),
-      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(__dirname, "./ResolverFunctions/Query/listTodos/response.vtl")
-      ),
-    }
-  );
+    });
 
-  const updateTodoResolver = TodoDataSource.createResolver(
-    "Update Todo Data Source Resolver",
-    {
+  const createTodoResolver = api
+    .addLambdaDataSource(
+      "Create Todo Data Source",
+      createTodo(scope, {
+        todoTable: props.TodoDB,
+      })
+    )
+    .createResolver("CreateTodoLambdaResolver", {
       typeName: "Mutation",
-      fieldName: "updateTodo",
-      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(
-          __dirname,
-          "./ResolverFunctions/Mutations/updateTodo/request.vtl"
-        )
-      ),
-      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(
-          __dirname,
-          "./ResolverFunctions/Mutations/updateTodo/response.vtl"
-        )
-      ),
-    }
-  );
+      fieldName: "createTodo",
+    });
 
-  const deleteTodoResolver = TodoDataSource.createResolver(
-    "Delete Todo Data Source Resolver",
-    {
-      typeName: "Mutation",
-      fieldName: "deleteTodo",
-      requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(
-          __dirname,
-          "./ResolverFunctions/Mutations/deleteTodo/request.vtl"
-        )
-      ),
-      responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
-        path.join(
-          __dirname,
-          "./ResolverFunctions/Mutations/deleteTodo/response.vtl"
-        )
-      ),
-    }
-  );
+  // const updateTodoResolver = TodoDataSource.createResolver(
+  //   "Update Todo Data Source Resolver",
+  //   {
+  //     typeName: "Mutation",
+  //     fieldName: "updateTodo",
+  //     requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+  //       path.join(
+  //         __dirname,
+  //         "./ResolverFunctions/Mutations/updateTodo/request.vtl"
+  //       )
+  //     ),
+  //     responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+  //       path.join(
+  //         __dirname,
+  //         "./ResolverFunctions/Mutations/updateTodo/response.vtl"
+  //       )
+  //     ),
+  //   }
+  // );
+
+  // const deleteTodoResolver = TodoDataSource.createResolver(
+  //   "Delete Todo Data Source Resolver",
+  //   {
+  //     typeName: "Mutation",
+  //     fieldName: "deleteTodo",
+  //     requestMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+  //       path.join(
+  //         __dirname,
+  //         "./ResolverFunctions/Mutations/deleteTodo/request.vtl"
+  //       )
+  //     ),
+  //     responseMappingTemplate: awsAppsync.MappingTemplate.fromFile(
+  //       path.join(
+  //         __dirname,
+  //         "./ResolverFunctions/Mutations/deleteTodo/response.vtl"
+  //       )
+  //     ),
+  //   }
+  // );
 
   return api;
 }

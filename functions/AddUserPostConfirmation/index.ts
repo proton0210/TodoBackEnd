@@ -1,6 +1,5 @@
 import * as AWS from "aws-sdk";
 const docClient = new AWS.DynamoDB.DocumentClient();
-//typeScript types so that our "event" object is defined
 import { PostConfirmationConfirmSignUpTriggerEvent } from "aws-lambda";
 
 exports.handler = async (event: PostConfirmationConfirmSignUpTriggerEvent) => {

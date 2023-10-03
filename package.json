@@ -8,7 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "deploy": "cdk synth && cdk deploy"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.114",
@@ -24,10 +25,13 @@
   "dependencies": {
     "@aws-cdk/aws-amplify-alpha": "^2.77.0-alpha.0",
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.77.0-alpha.0",
+    "@aws-sdk/client-dynamodb": "^3.423.0",
+    "@aws-sdk/util-dynamodb": "^3.423.0",
     "aws-cdk-lib": "2.69.0",
     "constructs": "^10.0.0",
     "esbuild": "^0.17.18",
     "git-branch": "^2.0.1",
-    "source-map-support": "^0.5.21"
+    "source-map-support": "^0.5.21",
+    "ulid": "^2.3.0"
   }
 }
